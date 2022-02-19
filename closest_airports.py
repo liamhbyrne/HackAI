@@ -62,7 +62,7 @@ class ClosestAirport:
             r = csv.DictReader(csvfile, delimiter=',', quotechar='"')
             rows=[]
             for event in r:
-                closest_iata = self.find_closest(float(event['lat']), float(event['lng']))
+                closest_iata = self.find_closest(float(event['lng']), float(event['lat']))
                 event['closest_iata'] = closest_iata
                 rows.append(event)
                 fields = list(r.fieldnames)
