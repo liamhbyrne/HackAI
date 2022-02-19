@@ -33,8 +33,9 @@ def haversine(lon1, lat1, lon2, lat2):
 
 class ClosestAirport:
 
-    def __init__(self, dist_function="haversine"):
+    def __init__(self,new_path, dist_function="haversine"):
         self.airports = json.load(open('data/airports.json'))
+        self.new_path = new_path
 
         # This is not redundant - allows for more dist functions in future
         if dist_function == "haversine":
@@ -68,17 +69,13 @@ class ClosestAirport:
                 fields = list(r.fieldnames)
                 fields.append('closest_iata')
 
-        print(rows)
 
-        with open("data/events1.csv", "w", newline='', encoding='utf-8') as csvfile:
+        with open(self.new_path, "w", newline='', encoding='utf-8') as csvfile:
             csv_writer = csv.DictWriter(csvfile, fieldnames=fields)
             csv_writer.writeheader()
             csv_writer.writerows(rows)
 
 
-if __name__ == '__main__':
-    updater = ClosestAirport()
-    updater.update_events()
 
 
 
