@@ -1,6 +1,5 @@
 import pandas as pd
 import re
-import numpy as np
 
 import closest_airports as ca
 
@@ -56,4 +55,5 @@ if __name__ == '__main__':
 
     formatter = FormatEvents("data/events_formatted.csv")
     formatter.format_columns()
+    formatter.remove_descriptions()
     formatter.save_formatted_csv()
