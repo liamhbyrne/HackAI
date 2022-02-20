@@ -26,7 +26,7 @@ class AnomalySearcher:
         x = self._df['nth']
         y = self._df['volume']
         polyModel = np.poly1d(np.polyfit([i for i in range(len(x))], y, 10))
-        # fitted_line = np.linspace(1, len(x), np.max(y).astype(int))
+        fitted_line = np.linspace(1, len(x), np.max(y).astype(int))
         logging.info("R-Squared: {}".format(r2_score(y, polyModel(x))))
         logging.info("R-Squared: {}".format(r2_score(y, polyModel(x))))
         # Anomaly finder

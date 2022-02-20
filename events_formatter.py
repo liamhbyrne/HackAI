@@ -45,6 +45,9 @@ class FormatEvents:
     def get_dataframe_info(self):
         self.dataframe.info()
 
+    def get_dataframe(self):
+        return self.dataframe
+
     def remove_descriptions(self):
         self.dataframe.drop('description', axis=1, inplace=True)
 

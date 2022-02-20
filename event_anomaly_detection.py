@@ -1,6 +1,7 @@
 from closest_airports import ClosestAirport
 from events_formatter import FormatEvents
-import recent_events as re
+from recent_events import RecentEvents
+from holiday_checker import HolidayChecker
 from anomaly_searcher import AnomalySearcher
 
 # Find closest airport for each event
@@ -13,6 +14,18 @@ formatter.format_columns()
 formatter.remove_descriptions()
 formatter.save_formatted_csv()
 
+correlator = RecentEvents()
+holiday_check = HolidayChecker()
+def print_anomaly(row):
+    correlated_events = correlator.find_recent_events(row.destination, str(row.arrival_date.date()))
+    holiday_num = holiday_check.find_recent_holidays(row.destination, str(row.arrival_date.date()))
+
+    anomaly_string = str(row.arrival_date.date()) + " has " + str(len(correlated_events.index)) + " event possibilites"
+    if holiday_num > 0:
+        anomaly_string += ", and " + str(holiday_num) + "holiday possibilites"
+
+    print(anomaly_string)
+
 # Generate anomalies
 destination_finder = AnomalySearcher()
 dests = destination_finder.forAllDestinations()
@@ -20,12 +33,12 @@ anomalies = {}
 for d in dests:
     anon_searcher = AnomalySearcher()
     anon_searcher.preprocess(d)
-    anomalies[d] = anon_searcher.findAnomalies()
+    dest = d
+    df = anon_searcher.findAnomalies()
+    print("########## " + dest + " ##########")
+    df.apply(print_anomaly, axis=1)
+    print("")
 
-for anomaly in anomalies:
-    print(anomaly)
 
-# Generate list of possible events for each anomaly
-#correlator = re.RecentEvents()
-#for anomaly in anomalies:
-#    print(correlator.find_recent_events(anomaly["destination"], anomaly["start_date"]))
+
+

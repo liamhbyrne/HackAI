@@ -9,13 +9,13 @@ class RecentEvents:
 
     def find_recent_events (self, destination, date):
         # Selects all events with the same destination
-        self.ef = self.ef[self.ef['closest_iata'] == destination]
+        df = self.ef[self.ef['closest_iata'] == destination]
 
-        date_boundary = (pd.date_range(date, periods=2, freq="28D"))[-1].date()
-        self.ef = self.ef[(self.ef['start_date'] >= str(date)) & (self.ef['end_date'] <= str(date_boundary))]
-        self.ef = self.ef.sort_values(by='visitors')
+        date_boundary = (pd.date_range(str(date), periods=2, freq="14D"))[-1].date()
+        df2 = df[(df['start_date'] >= str(date)) & (df['end_date'] <= str(date_boundary))]
+        df3 = df2.sort_values(by='visitors')
 
-        return self.ef
+        return df3
 
 
 

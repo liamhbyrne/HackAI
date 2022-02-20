@@ -7,7 +7,7 @@ holidays = [
         "month": 12,
         "day": 25
     },
-{
+    {
         "name": "New Years",
         "month": 1,
         "day": 1
@@ -16,15 +16,18 @@ holidays = [
 
 class HolidayChecker:
     def __init__(self):
-            # No Construction needed
+        self.var = "var"
 
     def find_recent_holidays (self, destination, date):
         date_boundary = (pd.date_range(date, periods=2, freq="14D"))[-1].date()
         dates_to_check = pd.date_range(date, date_boundary-timedelta(days=1), freq='d')
+        num_holidays = 0
         for holiday in holidays:
             for date_time in dates_to_check:
                 if (date_time.day == holiday["day"]) & (date_time.month == holiday["month"]):
-                    return holiday["name"]
+                    num_holidays = num_holidays + 1
+
+        return num_holidays
 
 
 if __name__ == '__main__':
