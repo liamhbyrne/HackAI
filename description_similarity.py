@@ -21,7 +21,6 @@ events['similarity'] = events.loc[events['visitors'] != -1].apply(
 )
 events = events.sort_values(by='similarity', ascending=False)
 
-print(len(events.loc[events.visitors == -1]))
 
 
 print(events[['description', 'similarity']])
