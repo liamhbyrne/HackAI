@@ -35,12 +35,3 @@ class AnomalySearcher:
         ordered_anomalies = anomalies.loc[(anomalies.volume - polyModel(anomalies.nth)).sort_values(ascending=False).index]
         return ordered_anomalies[['destination', 'arrival_date']]
 
-if __name__ == '__main__':
-    destination_finder = AnomalySearcher()
-    #warning, do not reuse an AnomalySearch
-    dests = destination_finder.forAllDestinations()
-    anomalies = {}
-    for d in dests:
-        anon_searcher = AnomalySearcher()
-        anon_searcher.preprocess(d)
-        anomalies[d] = anon_searcher.findAnomalies()
