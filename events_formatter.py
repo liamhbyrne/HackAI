@@ -48,12 +48,3 @@ class FormatEvents:
     def remove_descriptions(self):
         self.dataframe.drop('description', axis=1, inplace=True)
 
-
-if __name__ == '__main__':
-    updater = ca.ClosestAirport("data/events_formatted.csv")
-    updater.update_events()
-
-    formatter = FormatEvents("data/events_formatted.csv")
-    formatter.format_columns()
-    formatter.remove_descriptions()
-    formatter.save_formatted_csv()
