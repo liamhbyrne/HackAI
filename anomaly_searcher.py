@@ -21,17 +21,25 @@ class AnomalySearcher:
     def forAllDestinations(self):
         return self._df.destination.unique()
 
-    def findAnomalies(self):
+    def findAnomalies(self, plot=False):
         # fitting
         x = self._df['nth']
         y = self._df['volume']
         polyModel = np.poly1d(np.polyfit([i for i in range(len(x))], y, 10))
         # fitted_line = np.linspace(1, len(x), np.max(y).astype(int))
         logging.info("R-Squared: {}".format(r2_score(y, polyModel(x))))
+        logging.info("R-Squared: {}".format(r2_score(y, polyModel(x))))
         # Anomaly finder
         self._df['anomaly'] = (
                 (self._df['volume'] - polyModel(self._df['nth'])) > (2 * polyModel(self._df['nth'])))
-        anomalies = self._df.loc[self._df['anomaly']]
-        ordered_anomalies = anomalies.loc[(anomalies.volume - polyModel(anomalies.nth)).sort_values(ascending=False).index]
-        return ordered_anomalies[['destination', 'arrival_date']]
 
+        if plot:
+            highlight = [True, False]
+            sns.relplot(data=self._df, x='nth', y='volume', hue='anomaly', hue_order=highlight, aspect=1.61)
+            plt.plot(fitted_line, polyModel(fitted_line))
+            plt.show()
+
+        anomalies = self._df.loc[self._df['anomaly']]
+        ordered_anomalies = anomalies.loc[
+            (anomalies.volume - polyModel(anomalies.nth)).sort_values(ascending=False).index]
+        return ordered_anomalies[['destination', 'arrival_date']]
