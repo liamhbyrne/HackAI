@@ -17,6 +17,17 @@ class RecentEvents:
 
         return df3
 
+    def get_event_names (self, df):
+        string = "("
+        for name in df[["name"]].to_numpy():
+            string += name + " | "
+        string += ")"
+        return string
+
+    def get_events_length (self, df):
+        return len(df.index)
+
+
 
 
 if __name__ == "__main__":

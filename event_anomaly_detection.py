@@ -18,11 +18,9 @@ correlator = RecentEvents()
 holiday_check = HolidayChecker()
 def print_anomaly(row):
     correlated_events = correlator.find_recent_events(row.destination, str(row.arrival_date.date()))
-    holiday_num = holiday_check.find_recent_holidays(row.destination, str(row.arrival_date.date()))
+    holiday_events = holiday_check.find_recent_holidays(row.destination, str(row.arrival_date.date()))
 
-    anomaly_string = str(row.arrival_date.date()) + " has " + str(len(correlated_events.index)) + " event possibilites"
-    if holiday_num > 0:
-        anomaly_string += ", and " + str(holiday_num) + "holiday possibilites"
+    anomaly_string = str(row.arrival_date.date()) + "          " + str(correlator.get_events_length((correlated_events))) + "          " + str(holiday_events)
 
     print(anomaly_string)
 
@@ -33,9 +31,8 @@ anomalies = {}
 for d in dests:
     anon_searcher = AnomalySearcher()
     anon_searcher.preprocess(d)
-    dest = d
     df = anon_searcher.findAnomalies()
-    print("########## " + dest + " ##########")
+    print("########## " + d + " ##########")
     df.apply(print_anomaly, axis=1)
     print("")
 
