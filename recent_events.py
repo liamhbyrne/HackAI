@@ -28,8 +28,3 @@ class RecentEvents:
         return len(df.index)
 
 
-
-
-if __name__ == "__main__":
-    correlator = RecentEvents()
-    print(correlator.find_recent_events("ATH", "2018-06-20"))
