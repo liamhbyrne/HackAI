@@ -19,6 +19,7 @@ Cirium provided us with a dataset of flight ticket searches and events and chall
   
 >**_Find explanations for anomalies in travel demand_** 
 
+
 It is very useful for airlines to know when there will be an significant increase in demand for a particular destination. One way to predict the future demand of a given flight is to identify which public events (e.g. a tradeshow) contribute most to the increase in flight searches.
   
 ## Our solution
@@ -33,13 +34,13 @@ Each event has an associated description of varying length. Through data explora
 
 ### Anomaly Detection
 The pipeline we created first finds anomalous demand and then tries to give an 'explanation' through associating it with an event. We plotted a time series of demand over time for a given destination or route. 
-
-![image](https://user-images.githubusercontent.com/47918966/155036189-98855a52-7145-47e0-9f23-5f819193901f.png)
+  
+![ath](https://user-images.githubusercontent.com/47918966/155037630-1bd7d98b-872d-4a1c-8c40-250c501c7fc2.png)
 
 To gauge how likely each day is an anomaly, we created a model which fits to the baseline of the curve to capture the underlying seasonal movements of demand. This time series is fairly erratic (R<sup>2</sup> of 0.52 with a polynomial regression fit). We had two different approaches to this:
 #### Polynomial Regression
 To capture the general pattern of the demand, a polynomial fit provides a smooth curve. We found that a polynomial with a degree of 10-15 was sufficient to capture the baseline. However, its tendency to drop close or below zero made it problematic when identifying anomalies as we gauged the liklihood of an anomaly by the _relative_ distance to the line.
-![image](https://user-images.githubusercontent.com/47918966/155035662-388748ff-ac62-4d4c-8516-72339d5229a0.png) 
+![image](https://user-images.githubusercontent.com/47918966/155037269-8fd7f0c6-36e3-4bb3-984d-de43a1cd54ed.png) 
   
 _Fig.2 The graph above presents the polynomial fit of the demand from Barcelona to Athens (nth is the number of days from the start of the dataset)._
 
