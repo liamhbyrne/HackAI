@@ -17,7 +17,7 @@ def gen_rolling_conf_ints(confidence_level, period, ax_y):
 
 
 class AnomalySearcher:
-    def __init__(self, path='./data/flights_searches.csv'):
+    def __init__(self, path='././data/flights_searches.csv'):
         self._df = pd.read_csv(path)
         self._dest: str
         self.colorDark = (44/255, 47/255, 51/255)

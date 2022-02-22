@@ -3,7 +3,7 @@ import spacy
 
 
 class EventEventComparator:
-    def __init__(self, df, path="./data/events.csv"):
+    def __init__(self, df, path="././data/events.csv"):
         fe = FormatEvents(path)
         fe.format_columns()
         self._events = fe.get_dataframe()
