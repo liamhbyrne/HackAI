@@ -8,10 +8,20 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import datetime
 
+def gen_rolling_conf_ints(confidence_level, period, ax_y):
+    rolling_mean = ax_y.rolling(period).mean()
+    rolling_std = ax_y.rolling(period).std()
+    conf_int_upper = rolling_mean + (confidence_level * rolling_std)
+    conf_int_lower = rolling_mean - (confidence_level * rolling_std)
+    return conf_int_upper, conf_int_lower
+
+
 class AnomalySearcher:
     def __init__(self, path='./data/flights_searches.csv'):
         self._df = pd.read_csv(path)
         self._dest: str
+        self.colorDark = (44/255, 47/255, 51/255)
+        self.colorLight = (.9,.9,.9)
 
     def preprocess(self, destination):
         self._dest = destination
@@ -27,77 +37,77 @@ class AnomalySearcher:
         return self._df.destination.unique()
 
     def findAnomalies(self, plot=False):
-
         self._df = self._df.sort_values('arrival_date')
-        # fitting
-        x = self._df['arrival_date']
-        y = self._df['volume']
 
-        y_std = y.std()
+        # Evaluate each origin pairing to given destination
+        output_anoms = pd.DataFrame()
+        for origin in self._df["origin"].unique():
+            origin_to_dest = self._df[self._df["origin"] == origin]
 
-        rolling7 = y.rolling(7).mean()
-        rolling14 = y.rolling(14).mean()
-        rm28 = y.rolling(28).mean()
-        rs28 = y.rolling(28).std() #+ (3*y_std)
-        r28 = rm28 + (3*rs28)
+            x = origin_to_dest['arrival_date']
+            y = origin_to_dest['volume']
 
-        anomsL=[]
-        for xi, yi, ri in zip(x,y,r28):
-            diff = yi - ri
-            if diff > 0:
-                anomsL.append([xi, yi, diff**0.5, self._dest])
+            # Generate rolling confidence intervals
+            conf_int_upper, conf_int_lower = gen_rolling_conf_ints(0.95, 14, y)
 
-        anoms = pd.DataFrame(anomsL)
-        ordered_anoms = anoms.sort_values(2,ascending=False)
-        ordered_anoms = ordered_anoms.rename(columns={0: "arrival_date", 1: "volume", 2: "error", 3: "destination"})
-        return ordered_anoms
-        """
-        fig, ax = plt.subplots()
-        ax.scatter(x,y,marker=".")
-        ax.scatter(anoms[0],anoms[1],s=anoms[2],marker=".", color="red")
-        #ax.plot(x,r28, color="red")
+            # Create column 'error' which is the distance of each
+            # point from upper confidence interval
+            origin_to_dest["error"] = y - conf_int_upper
+
+            # Calculate anomalies
+            error_std = origin_to_dest["error"].std()
+            anoms_origin_to_dest = origin_to_dest.loc[origin_to_dest['error'] - error_std > 0]
+
+            # Add pair specific anomalies to destination anomalies
+            if output_anoms.empty:
+                output_anoms = anoms_origin_to_dest
+            else:
+                pd.concat([output_anoms, anoms_origin_to_dest]).drop_duplicates('nth')
+
+            # Plot Results
+            if plot:
+                fig, ax = plt.subplots()
+                ax.scatter(x, y, marker=".",
+                           label="Volume")
+                ax.scatter(anoms_origin_to_dest["arrival_date"], anoms_origin_to_dest["volume"], marker=".",color="red",
+                           label="Anomaly")
+                ax.plot(x, conf_int_upper, color="orange",
+                           label="99% Upper\n Confidence\n Interval")
+                ax.plot(x, conf_int_lower, color="pink",
+                           label="99% Lower\n Confidence\n Interval")
+                ax.bar(origin_to_dest["arrival_date"], origin_to_dest["error"], color="red", alpha=0.5,
+                           label="Error")
+
+                self.formatChart(fig, ax)
+                plt.title(f'{origin} to {self._dest}', color=self.colorLight)
+                plt.show()
+
+        return output_anoms
+
+    def formatChart(self, fig, ax):
         fig.autofmt_xdate()
         ax.set_xlim([datetime.date(2017, 12, 30), datetime.date(2019, 12, 1)])
+        fig.patch.set_facecolor(self.colorDark)
+        ax.set_facecolor(self.colorDark)
 
-        print(f'x: {x.head()}')
-        print(f'y: {y.head()}')
+        ax.set_ylabel("Flight Search Volume")
+        ax.set_xlabel("Date")
 
-        plt.title(self._dest)
-        plt.show()
+        ax.xaxis.label.set_color([x * .9 for x in self.colorLight])
+        ax.yaxis.label.set_color([x * .9 for x in self.colorLight])
 
+        ax.tick_params(color=self.colorLight, labelcolor=self.colorLight)
+        for spine in ax.spines.values():
+            spine.set_edgecolor(self.colorLight)
 
-        """"""
-        polyModel = np.poly1d(np.polyfit([i for i in range(len(x))], y, 10))
-        fitted_line = np.linspace(1, len(x), np.max(y).astype(int))
-        logging.info("R-Squared: {}".format(r2_score(y, polyModel(x))))
-        logging.info("R-Squared: {}".format(r2_score(y, polyModel(x))))
+        # Shrink current axis by 20%
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
-        rolling = y.rolling(28).mean()
-        rolling = rolling.dropna()
-        print(rolling.head())
-
-        # Anomaly finder
-        self._df['anomaly'] = (
-                (self._df['volume'] - polyModel(self._df['nth'])) > (3 * polyModel(self._df['nth'])) + (0.5*np.average(self._df['volume'])))
-
-        self._df['error'] = (self._df['volume'] - polyModel(self._df['nth']))/polyModel(self._df['nth'])
-
-        anomalies = self._df.loc[self._df['anomaly']]
-        ordered_anomalies = anomalies.sort_values('error', ascending=False)
-
-
-        print(ordered_anomalies.head())
-
-        if plot:
-            highlight = [True, False]
-            sns.relplot(data=self._df, x='nth', y='volume', hue='anomaly', hue_order=highlight, aspect=1.61)
-            plt.scatter(ordered_anomalies['nth'].head(10), ordered_anomalies['volume'].head(10), color='red')
-            plt.title(self._dest)
-            plt.plot(fitted_line, polyModel(fitted_line))
-            plt.show()
-
-        return ordered_anomalies[['destination', 'arrival_date']]
-        """
+        # Put a legend to the right of the current axis
+        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5),
+                  facecolor=self.colorDark, labelcolor=self.colorLight)
+        return fig, ax
 
 if __name__ == '__main__':
     destination_finder = AnomalySearcher()
