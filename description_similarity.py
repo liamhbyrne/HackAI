@@ -16,6 +16,8 @@ fe.format_columns()
 events = fe.get_dataframe()
 print(events.head())
 
+print(len(events.loc[events['visitors'] != -1]), len(events.loc[events['visitors'] == -1]))
+
 events['similarity'] = events.loc[events['visitors'] != -1].apply(
     lambda row: compare_to_vector.similarity(nlp(row.description)), axis=1
 )

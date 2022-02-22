@@ -20,14 +20,15 @@ class AnomalySearcher:
              'arrival_date': 'first', 'return_date': 'first',
              'volume': 'sum'})
         self._df = self._df.loc[(self._df['destination'] == destination)]
-        self._df['nth'] = np.arange(len(self._df))
+        self._df = self._df.sort_values('arrival_date')
+        self._df['day'] = np.arange(len(self._df))
 
     def forAllDestinations(self):
         return self._df.destination.unique()
 
     def findAnomalies(self, plot=False):
         # fitting
-        x = self._df['nth']
+        x = self._df['day']
         y = self._df['volume']
         polyModel = np.poly1d(np.polyfit([i for i in range(len(x))], y, 10))
         fitted_line = np.linspace(1, len(x), np.max(y).astype(int))
@@ -35,9 +36,9 @@ class AnomalySearcher:
         logging.info("R-Squared: {}".format(r2_score(y, polyModel(x))))
         # Anomaly finder
         self._df['anomaly'] = (
-                (self._df['volume'] - polyModel(self._df['nth'])) > (2 * polyModel(self._df['nth'])) + (0.5*np.average(self._df['volume'])))
+                (self._df['volume'] - polyModel(self._df['day'])) > (2 * polyModel(self._df['day'])) + (0.5*np.average(self._df['volume'])))
 
-        self._df['error'] = (self._df['volume'] - polyModel(self._df['nth']))/polyModel(self._df['nth'])
+        self._df['error'] = (self._df['volume'] - polyModel(self._df['day']))/polyModel(self._df['day'])
 
         anomalies = self._df.loc[self._df['anomaly']]
         ordered_anomalies = anomalies.sort_values('error', ascending=False)
@@ -47,8 +48,8 @@ class AnomalySearcher:
 
         if plot:
             highlight = [True, False]
-            sns.relplot(data=self._df, x='nth', y='volume', hue='anomaly', hue_order=highlight, aspect=1.61)
-            plt.scatter(ordered_anomalies['nth'].head(10), ordered_anomalies['volume'].head(10), color='red')
+            sns.relplot(data=self._df, x='day', y='volume', hue='anomaly', hue_order=highlight, aspect=1.61)
+            plt.scatter(ordered_anomalies['day'].head(10), ordered_anomalies['volume'].head(10), color='red')
             plt.title(self._dest)
             plt.plot(fitted_line, polyModel(fitted_line))
             plt.show()
