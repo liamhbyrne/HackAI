@@ -56,7 +56,8 @@ class AnomalySearcher:
 
             # Calculate anomalies
             error_std = origin_to_dest["error"].std()
-            anoms_origin_to_dest = origin_to_dest.loc[origin_to_dest['error'] - error_std > 0]
+            error_mean = origin_to_dest["error"].mean()
+            anoms_origin_to_dest = origin_to_dest.loc[origin_to_dest['error'] > (2*error_std + error_mean)]
 
             # Add pair specific anomalies to destination anomalies
             if output_anoms.empty:
