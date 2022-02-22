@@ -27,7 +27,7 @@ We decided to break down the task into a pipeline:
 
 `data cleaning -> anomaly detection -> anomaly explanation`
 ### Data cleaning
-A significant proportion of both datasets provided were sparse and inconsistent, for example in `events.csv` there were 3361 events without a visitor capacity out of a total 500. 
+A significant proportion of both datasets provided were sparse and inconsistent, for example in `events.csv` there were 3361 events without a visitor capacity out of a total 5000. 
 We determined that the visitor capacity was one of the most important features of an event so we decided to fill in the gaps:
 #### Word2Vec
 Each event has an associated description of varying length. Through data exploration we found that events with similar sounding descriptions tend to have a similar visitor capacity. Comparing similarity between bodies of text is not straightforward, as capturing semantics from a sequence of characters is highly subjective. A **Word2Vec technique** involves decomposing text into a vector (embedding) with several dimensions, such that the _cosine similarity_ between these vectors represents the semantics of the text. We used spaCy to convert each event description into a vector. Each event without a visitor capacity is given the same capacity as the event with the highest cosine similarity.
@@ -43,7 +43,7 @@ _Fig.1 The graph above presents the demand from Barcelona to Athens._
 
 To gauge how likely each day is an anomaly, we created a model which fits to the baseline of the curve to capture the underlying seasonal movements of demand. This time series is fairly erratic (R<sup>2</sup> of just 0.16 for Athens with a polynomial regression fit). We had two different approaches to this:
 #### Polynomial Regression
-To capture the general pattern of the demand, a polynomial fit provides a smooth curve. We found that a polynomial with a degree of 10-15 was sufficient to capture the baseline. However, its tendency to drop close or below zero made it problematic when identifying anomalies as we gauged the liklihood of an anomaly by the _relative_ distance to the line.
+To capture the general pattern of the demand, a polynomial fit provides a smooth curve. We found that a polynomial with a degree of 10-15 was sufficient to capture the baseline. However, its tendency to drop close or below zero made it problematic when identifying anomalies as we gauged the likelihood of an anomaly by the _relative_ distance to the line.
 ![image](https://user-images.githubusercontent.com/47918966/155037269-8fd7f0c6-36e3-4bb3-984d-de43a1cd54ed.png) 
 
 _Fig.2 The graph above presents the polynomial fit of the demand from Barcelona to Athens._
@@ -60,4 +60,4 @@ _Fig.3 A map of the location of each event, revealing the clustering around airp
 If time permitted, we would of looked into identifying which origin airports the visitors would of most likely travelled from. For example, leading up to an international football match - you would expect a surge in demand from the away team.
 
 ## Acknowledgements
-We would like to thank Cirium for the challenge, we thoroughly enjoyed the task and appreciate all the effort of designing the task, running the event and evaluating all the submissions. Additionally, congratulations to the University of Southampton AI society on hosting their first hackathon. 
+We would like to thank Cirium for the challenge, we thoroughly enjoyed the task and appreciate all the effort of designing the task, running the event, and evaluating all the submissions. Additionally, congratulations to the University of Southampton AI society on hosting their first hackathon. 
