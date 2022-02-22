@@ -11,7 +11,7 @@ compare_to = '''The American College of Clinical Pharmacy International Symposiu
 compare_to_vector = nlp(compare_to)
 
 
-fe = FormatEvents("./data/events.csv")
+fe = FormatEvents("../../data/events.csv")
 fe.format_columns()
 events = fe.get_dataframe()
 print(events.head())

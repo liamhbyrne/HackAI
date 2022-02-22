@@ -1,8 +1,6 @@
 import pandas as pd
 import re
 
-import closest_airports as ca
-
 
 def e_v_formatting(x):
     split_data = re.split(" - ", str(x))

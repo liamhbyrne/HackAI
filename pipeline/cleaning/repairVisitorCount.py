@@ -1,6 +1,6 @@
-from events_formatter import FormatEvents
+from pipeline.cleaning.events_formatter import FormatEvents
 import spacy
-import pandas as pd
+
 
 class EventEventComparator:
     def __init__(self, df, path="./data/events.csv"):
